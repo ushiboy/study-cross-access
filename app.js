@@ -18,6 +18,7 @@ const server = require('https').createServer({
 
 
 app.get('/greet', (req, res) => {
+  let message = 'has token';
   if (!(req.cookies.token)) {
     console.log('send token cookie');
     res.cookie('token', 'abcdefg', {
@@ -26,12 +27,13 @@ app.get('/greet', (req, res) => {
       path: '/',
       domain: '.foobar.jp'
     });
+    message = 'send token';
   }
   res.cookie('v1', '1', {
     secure: true,
     path: '/'
   });
-  res.status(200).send(`hello`);
+  res.status(200).send(message);
 });
 
-server.listen(PORT, () => console.info('listen: ', PORT));
+server.listen(PORT, '0.0.0.0', () => console.info('listen: ', PORT));
