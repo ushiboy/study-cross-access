@@ -17,3 +17,6 @@ append `/etc/hosts`
 127.0.0.1       test1.foobar.jp
 127.0.0.1       test2.foobar.jp
 ```
+
+https://test1.foobar.jp:8080/
+https://test2.foobar.jp:8080/
