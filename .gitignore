@@ -1,3 +1,4 @@
+/public/bundle.js
 /keys/*
 !/keys/.keep
 package-lock.json

@@ -4,16 +4,25 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "node app.js",
+    "build": "browserify public/index.js -t babelify --outfile public/bundle.js"
   },
   "author": "ushiboy",
   "license": "MIT",
   "dependencies": {
     "cookie-parser": "^1.4.6",
+    "core-js": "^3.19.1",
     "express": "^4.17.1",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "regenerator-runtime": "^0.13.9",
+    "whatwg-fetch": "^3.6.2"
   },
   "devDependencies": {
+    "@babel/cli": "^7.16.0",
+    "@babel/core": "^7.16.0",
+    "@babel/preset-env": "^7.16.4",
+    "babelify": "^10.0.0",
+    "browserify": "^17.0.0",
     "eslint": "^8.2.0"
   }
 }

@@ -1,3 +1,6 @@
+import 'whatwg-fetch';
+import "regenerator-runtime/runtime";
+
 (async function() {
 
   const site = location.hostname.slice(0, location.hostname.indexOf('.'));

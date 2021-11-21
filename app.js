@@ -36,4 +36,4 @@ app.get('/greet', (req, res) => {
   res.status(200).send(message);
 });
 
-server.listen(PORT, () => console.info('listen: ', PORT));
+server.listen(PORT, '0.0.0.0', () => console.info('listen: ', PORT));
