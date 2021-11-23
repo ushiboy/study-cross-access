@@ -2,24 +2,38 @@ import 'whatwg-fetch';
 import "regenerator-runtime/runtime";
 
 (async function() {
+  const TEST1_ORIGIN = location.protocol + '//test1.foobar.jp:8080';
+  const TEST2_ORIGIN = location.protocol + '//test2.foobar.jp:8080';
+
+  function dumpLocalStorage() {
+    const storageLog = document.querySelector('#storage-log');
+    for (let i = 0; i <localStorage.length; i++) {
+      const k = localStorage.key(i);
+      const v = localStorage.getItem(k);
+      const li = document.createElement('li');
+      li.textContent = `${k}:${v}`;
+      storageLog.appendChild(li);
+    }
+  }
 
   const site = location.hostname.slice(0, location.hostname.indexOf('.'));
   document.title = site;
   document.querySelector('#site-title').textContent = site;
 
   if (site === 'test1') {
-    localStorage.setItem('my-token', 'abcdefg12345');
+    if (!localStorage.getItem('my-token')) {
+      localStorage.setItem('my-token', 'abcdefg12345');
+    }
 
     if (window !== window.parent) {
       window.parent.postMessage(JSON.stringify({
         type: 'loaded'
-      }), 'https://test2.foobar.jp:8080');
+      }), TEST2_ORIGIN);
     }
 
     window.addEventListener('message', (e) => {
-      if (e.origin !== 'https://test2.foobar.jp:8080') return;
+      if (e.origin !== TEST2_ORIGIN) return;
       const o = JSON.parse(e.data);
-
       if (o.type === 'getToken') {
         e.source.postMessage(JSON.stringify({
           type: 'sendToken',
@@ -28,35 +42,27 @@ import "regenerator-runtime/runtime";
       }
     }, false);
 
-  } else if (site === 'test2') {
-    if (!localStorage.getItem('my-token')) {
-      const iframe = document.createElement('iframe');
-      iframe.src = 'https://test1.foobar.jp:8080/';
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
-      window.addEventListener('message', (e) => {
-        if (e.origin !== 'https://test1.foobar.jp:8080') return;
-        const o = JSON.parse(e.data);
-        console.log(o);
-        if (o.type === 'loaded') {
-          iframe.contentWindow.postMessage(JSON.stringify({
-            type: 'getToken'
-          }), 'https://test1.foobar.jp:8080');
-        } else if(o.type === 'sendToken') {
-          localStorage.setItem('my-token', o.myToken);
-        }
-      }, false);
-    }
+  } else if (site === 'test2' && !localStorage.getItem('my-token')) {
+    // iframe hack
+    const iframe = document.createElement('iframe');
+    iframe.src = TEST1_ORIGIN + '/';
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+    window.addEventListener('message', (e) => {
+      if (e.origin !== TEST1_ORIGIN) return;
+      const o = JSON.parse(e.data);
+      console.log(o);
+      if (o.type === 'loaded') {
+        iframe.contentWindow.postMessage(JSON.stringify({
+          type: 'getToken'
+        }), TEST1_ORIGIN);
+      } else if(o.type === 'sendToken') {
+        localStorage.setItem('my-token', o.myToken);
+        dumpLocalStorage();
+      }
+    }, false);
   }
 
-  const storageLog = document.querySelector('#storage-log');
-  for (let i = 0; i <localStorage.length; i++) {
-    const k = localStorage.key(i);
-    const v = localStorage.getItem(k);
-    const li = document.createElement('li');
-    li.textContent = `${k}:${v}`;
-    storageLog.appendChild(li);
-  }
 
   const cookieLog = document.querySelector('#cookie-log');
   cookieLog.textContent = document.cookie;
@@ -71,5 +77,7 @@ import "regenerator-runtime/runtime";
   const text = await r.text();
   const log = document.querySelector('#log');
   log.textContent = text;
+
+  dumpLocalStorage();
 
 })();
