@@ -36,4 +36,7 @@ app.get('/greet', (req, res) => {
   res.status(200).send(message);
 });
 
+// for https
 server.listen(PORT, '0.0.0.0', () => console.info('listen: ', PORT));
+// for http
+app.listen(PORT + 1, '0.0.0.0', () => console.info('listen: ', PORT + 1));
