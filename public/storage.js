@@ -1,7 +1,5 @@
-import 'whatwg-fetch';
-import "regenerator-runtime/runtime";
+(function() {
 
-(async function() {
   const TEST1_ORIGIN = location.protocol + '//test1.foobar.jp:8080';
   const TEST2_ORIGIN = location.protocol + '//test2.foobar.jp:8080';
 
@@ -11,7 +9,7 @@ import "regenerator-runtime/runtime";
       const k = localStorage.key(i);
       const v = localStorage.getItem(k);
       const li = document.createElement('li');
-      li.textContent = `${k}:${v}`;
+      li.textContent = k + ":" + v;
       storageLog.appendChild(li);
     }
   }
@@ -31,7 +29,7 @@ import "regenerator-runtime/runtime";
       }), TEST2_ORIGIN);
     }
 
-    window.addEventListener('message', (e) => {
+    window.addEventListener('message', function(e) {
       if (e.origin !== TEST2_ORIGIN) return;
       const o = JSON.parse(e.data);
       if (o.type === 'getToken') {
@@ -45,10 +43,11 @@ import "regenerator-runtime/runtime";
   } else if (site === 'test2' && !localStorage.getItem('my-token')) {
     // iframe hack
     const iframe = document.createElement('iframe');
-    iframe.src = TEST1_ORIGIN + '/';
+    iframe.src = TEST1_ORIGIN + '/storage.html';
     iframe.style.display = 'none';
     document.body.appendChild(iframe);
-    window.addEventListener('message', (e) => {
+
+    window.addEventListener('message', function(e) {
       if (e.origin !== TEST1_ORIGIN) return;
       const o = JSON.parse(e.data);
       console.log(o);
@@ -62,21 +61,6 @@ import "regenerator-runtime/runtime";
       }
     }, false);
   }
-
-
-  const cookieLog = document.querySelector('#cookie-log');
-  cookieLog.textContent = document.cookie;
-
-  const r = await fetch('./greet');
-  const headerLogs = document.querySelector('#response-headers');
-  Array.from(r.headers.keys()).forEach(k => {
-    const li = document.createElement('li');
-    li.textContent = `${k}:${r.headers.get(k)}`;
-    headerLogs.appendChild(li);
-  });
-  const text = await r.text();
-  const log = document.querySelector('#log');
-  log.textContent = text;
 
   dumpLocalStorage();
 
